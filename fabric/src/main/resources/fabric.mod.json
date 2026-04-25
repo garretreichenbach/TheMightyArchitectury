@@ -15,6 +15,7 @@
   "license": "MIT",
   "icon": "assets/mightyarchitect/icon.png",
   "environment": "*",
+  "accessWidener": "mightyarchitect.accesswidener",
   "entrypoints": {
     "main": [
       "com.timmie.mightyarchitect.fabric.TheMightyArchitectFabric"
