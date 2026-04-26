@@ -30,6 +30,10 @@ public class ArchitectMenu {
 				ArchitectManager.design();
 				return true;
 
+			case 'l':
+				ArchitectManager.openCompositionLibrary();
+				return false;
+
 			case 'u':
 				ArchitectManager.unload();
 				return true;
@@ -66,6 +70,10 @@ public class ArchitectMenu {
 				ArchitectManager.unload();
 				return true;
 
+			case 'l':
+				ArchitectManager.openCompositionLibrary();
+				return false;
+
 			case 'm':
 				ArchitectManager.manageThemes();
 				return false;
@@ -98,6 +106,10 @@ public class ArchitectMenu {
 			case 'e':
 				ArchitectManager.compose();
 				return true;
+
+			case 'l':
+				ArchitectManager.openCompositionLibrary();
+				return false;
 
 			case 's':
 				if (test)
@@ -246,6 +258,7 @@ public class ArchitectMenu {
 		case Composing:
 			keybinds.put("F", "Finish");
 			keybinds.lineBreak();
+			keybinds.put("L", "Composition Library");
 			keybinds.put("U", "Unload");
 			break;
 
@@ -262,6 +275,7 @@ public class ArchitectMenu {
 				keybinds.put("" + (allThemes.indexOf(theme) + 1), theme.getDisplayName());
 			}
 			keybinds.lineBreak();
+			keybinds.put("L", "Composition Library");
 			keybinds.put("R", "Reload Imported");
 			keybinds.put("M", "Manage Themes...");
 			keybinds.put("C", "Cancel");
@@ -274,6 +288,7 @@ public class ArchitectMenu {
 
 			if (!ArchitectManager.testRun) {
 				keybinds.put("S", "Save as Schematic");
+				keybinds.put("L", "Composition Library");
 				if (Minecraft.getInstance().player.isCreative())
 					keybinds.put("P", "Print blocks into world");
 				keybinds.lineBreak();

@@ -1,12 +1,17 @@
 package com.timmie.mightyarchitect.control.compose;
 
 import com.timmie.mightyarchitect.AllSpecialTextures;
+import com.timmie.mightyarchitect.control.design.DesignTheme;
 import com.timmie.mightyarchitect.control.design.DesignType;
 
 public class CylinderStack extends Stack {
 
 	public CylinderStack(Room room) {
 		super(room);
+	}
+
+	public CylinderStack(Room room, DesignTheme theme) {
+		super(room, theme);
 	}
 
 	public int getMaxFacadeWidth() {

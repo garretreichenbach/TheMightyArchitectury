@@ -20,6 +20,7 @@ public class TextInputPromptScreen extends AbstractSimiScreen {
 	private Component buttonTextConfirm;
 	private Component buttonTextAbort;
 	private Component title;
+	private String initialText = "";
 
 	private boolean confirmed;
 
@@ -45,6 +46,7 @@ public class TextInputPromptScreen extends AbstractSimiScreen {
 		this.nameField.setBordered(false);
 		this.nameField.setMaxLength(35);
 		this.nameField.setFocused(true);
+		this.nameField.setValue(initialText);
 
 		confirm = Button.builder(buttonTextConfirm, button -> {
 			callback.accept(nameField.getValue());
@@ -85,6 +87,12 @@ public class TextInputPromptScreen extends AbstractSimiScreen {
 
 	public void setTitle(String title) {
 		this.title = Component.literal(title);
+	}
+
+	public void setInitialText(String initialText) {
+		this.initialText = initialText == null ? "" : initialText;
+		if (this.nameField != null)
+			this.nameField.setValue(this.initialText);
 	}
 
 	@Override

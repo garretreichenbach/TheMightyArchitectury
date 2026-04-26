@@ -2,6 +2,7 @@ package com.timmie.mightyarchitect.control.compose;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -116,6 +117,21 @@ public class Cuboid {
 	
 	public AABB toAABB() {
 		return new AABB(Vec3.atLowerCornerOf(getOrigin()), Vec3.atLowerCornerOf(getOrigin().offset(getSize())));
+	}
+
+	public CompoundTag writeToNbt(CompoundTag tag) {
+		tag.putInt("x", x);
+		tag.putInt("y", y);
+		tag.putInt("z", z);
+		tag.putInt("w", width);
+		tag.putInt("h", height);
+		tag.putInt("l", length);
+		return tag;
+	}
+
+	public static Cuboid readFromNbt(CompoundTag tag) {
+		return new Cuboid(new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")),
+				tag.getInt("w"), tag.getInt("h"), tag.getInt("l"));
 	}
 
 }

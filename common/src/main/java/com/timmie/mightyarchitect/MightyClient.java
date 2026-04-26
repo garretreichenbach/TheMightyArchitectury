@@ -3,12 +3,14 @@ package com.timmie.mightyarchitect;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.timmie.mightyarchitect.control.ArchitectManager;
 import com.timmie.mightyarchitect.control.SchematicRenderer;
+import com.timmie.mightyarchitect.control.composition.CompositionLibrary;
 import com.timmie.mightyarchitect.foundation.SuperRenderTypeBuffer;
 import com.timmie.mightyarchitect.foundation.utility.AnimationTickHolder;
 import com.timmie.mightyarchitect.foundation.utility.Keyboard;
 import com.timmie.mightyarchitect.foundation.utility.ShaderManager;
 import com.timmie.mightyarchitect.foundation.utility.outliner.Outliner;
 import com.timmie.mightyarchitect.gui.ScreenHelper;
+import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.minecraft.client.Camera;
@@ -41,6 +43,9 @@ public class MightyClient {
 		ClientTickEvent.CLIENT_POST.register(ScreenHelper::onClientTick);
 		ClientTickEvent.CLIENT_PRE.register(ShaderManager::onClientTick);
 
+		ClientPlayerEvent.CLIENT_PLAYER_JOIN.register(p -> CompositionLibrary.loadFromDisk());
+		ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(p -> CompositionLibrary.clearMemory());
+
 		ArchitectManager.registerAllEvents();
 	}
 
@@ -53,6 +58,7 @@ public class MightyClient {
 		ArchitectManager.tickBlockHighlightOutlines();
 		MightyClient.outliner.tickOutlines();
 		MightyClient.renderer.tick();
+		CompositionLibrary.tick();
 	}
 
 	public static void onRenderWorld(GuiGraphics guiGraphics) {
@@ -69,6 +75,7 @@ public class MightyClient {
 		SuperRenderTypeBuffer b = SuperRenderTypeBuffer.getInstance();
 
 		MightyClient.renderer.render(ms, b);
+		CompositionLibrary.renderAllVisible(ms, b);
 		ArchitectManager.render(ms, b);
 		MightyClient.outliner.renderOutlines(guiGraphics, b);
 

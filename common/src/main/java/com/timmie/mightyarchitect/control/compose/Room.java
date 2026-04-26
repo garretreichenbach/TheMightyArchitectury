@@ -4,6 +4,8 @@ import com.timmie.mightyarchitect.control.design.DesignLayer;
 import com.timmie.mightyarchitect.control.design.DesignType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundTag;
 
 public class Room extends Cuboid {
 
@@ -59,6 +61,31 @@ public class Room extends Cuboid {
 
 	public Axis getOrientation() {
 		return (width > length) ? Axis.X : Axis.Z;
+	}
+
+	@Override
+	public CompoundTag writeToNbt(CompoundTag tag) {
+		super.writeToNbt(tag);
+		tag.putString("layer", designLayer.name());
+		tag.putString("roof", roofType.name());
+		tag.putString("style", String.valueOf(styleGroup));
+		tag.putBoolean("secondary", secondaryPalette);
+		tag.putBoolean("quad", quadFacadeRoof);
+		tag.putInt("li", layer);
+		return tag;
+	}
+
+	public static Room readFromNbt(CompoundTag tag) {
+		Room room = new Room(new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")),
+				tag.getInt("w"), tag.getInt("h"), tag.getInt("l"));
+		room.designLayer = DesignLayer.valueOf(tag.getString("layer"));
+		room.roofType = DesignType.valueOf(tag.getString("roof"));
+		String style = tag.getString("style");
+		room.styleGroup = style.isEmpty() ? 'A' : style.charAt(0);
+		room.secondaryPalette = tag.getBoolean("secondary");
+		room.quadFacadeRoof = tag.getBoolean("quad");
+		room.layer = tag.getInt("li");
+		return room;
 	}
 
 }

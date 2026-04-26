@@ -7,6 +7,9 @@ import com.timmie.mightyarchitect.control.design.DesignTheme;
 import com.timmie.mightyarchitect.control.design.DesignType;
 import com.timmie.mightyarchitect.control.design.ThemeStatistics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -19,9 +22,12 @@ public class Stack {
 	protected DesignTheme theme;
 
 	public Stack(Room room) {
+		this(room, ArchitectManager.getModel().getGroundPlan().theme);
+	}
+
+	public Stack(Room room, DesignTheme theme) {
 		rooms = new ArrayList<>();
-		theme = ArchitectManager.getModel()
-			.getGroundPlan().theme;
+		this.theme = theme;
 
 		if (room.designLayer == DesignLayer.None) {
 			room.designLayer = theme.getLayers()
@@ -141,6 +147,27 @@ public class Stack {
 		default:
 			return AllSpecialTextures.NORMAL;
 		}
+	}
+
+	public CompoundTag writeToNbt(CompoundTag tag) {
+		tag.putBoolean("cyl", this instanceof CylinderStack);
+		ListTag roomList = new ListTag();
+		for (Room room : rooms)
+			roomList.add(room.writeToNbt(new CompoundTag()));
+		tag.put("rooms", roomList);
+		return tag;
+	}
+
+	public static Stack readFromNbt(CompoundTag tag, DesignTheme theme) {
+		ListTag roomList = tag.getList("rooms", Tag.TAG_COMPOUND);
+		if (roomList.isEmpty())
+			return null;
+		Room first = Room.readFromNbt(roomList.getCompound(0));
+		Stack stack = tag.getBoolean("cyl") ? new CylinderStack(first, theme) : new Stack(first, theme);
+		stack.rooms.clear();
+		for (int i = 0; i < roomList.size(); i++)
+			stack.rooms.add(Room.readFromNbt(roomList.getCompound(i)));
+		return stack;
 	}
 
 }

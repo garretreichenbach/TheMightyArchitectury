@@ -1,7 +1,11 @@
 package com.timmie.mightyarchitect.control.compose;
 
 import com.timmie.mightyarchitect.control.design.DesignTheme;
+import com.timmie.mightyarchitect.control.design.ThemeStorage;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -71,6 +75,36 @@ public class GroundPlan {
 	
 	public void forEachRoom(Consumer<? super Room> action) {
 		stacks.forEach(stack -> stack.forEach(action));
+	}
+
+	public CompoundTag writeToNbt(CompoundTag tag) {
+		tag.putString("theme", theme.getDisplayName());
+		ListTag stackList = new ListTag();
+		for (Stack stack : stacks)
+			stackList.add(stack.writeToNbt(new CompoundTag()));
+		tag.put("stacks", stackList);
+		return tag;
+	}
+
+	public static GroundPlan readFromNbt(CompoundTag tag) {
+		String themeName = tag.getString("theme");
+		DesignTheme theme = null;
+		for (DesignTheme candidate : ThemeStorage.getAllThemes()) {
+			if (candidate.getDisplayName().equals(themeName)) {
+				theme = candidate;
+				break;
+			}
+		}
+		if (theme == null)
+			return null;
+		GroundPlan plan = new GroundPlan(theme);
+		ListTag stackList = tag.getList("stacks", Tag.TAG_COMPOUND);
+		for (int i = 0; i < stackList.size(); i++) {
+			Stack stack = Stack.readFromNbt(stackList.getCompound(i), theme);
+			if (stack != null)
+				plan.stacks.add(stack);
+		}
+		return plan;
 	}
 
 }

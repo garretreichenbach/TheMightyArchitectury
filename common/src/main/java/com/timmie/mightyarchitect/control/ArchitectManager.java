@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.timmie.mightyarchitect.AllPackets;
 import com.timmie.mightyarchitect.MightyClient;
 import com.timmie.mightyarchitect.control.compose.GroundPlan;
+import com.timmie.mightyarchitect.control.composition.CompositionLibrary;
+import com.timmie.mightyarchitect.control.composition.SavedComposition;
 import com.timmie.mightyarchitect.control.design.DesignExporter;
 import com.timmie.mightyarchitect.control.design.DesignTheme;
 import com.timmie.mightyarchitect.control.design.ThemeStorage;
@@ -35,6 +37,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -43,6 +46,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ArchitectManager {
 
@@ -348,6 +354,56 @@ public class ArchitectManager {
 
 	public static void resetSchematic() {
 		model = new Schematic();
+	}
+
+	public static void openCompositionLibrary() {
+		ScreenHelper.open(new com.timmie.mightyarchitect.gui.CompositionLibraryScreen());
+	}
+
+	public static void saveCurrentComposition(String name) {
+		Schematic m = getModel();
+		if (m == null || m.getMaterializedSketch() == null || m.getGroundPlan() == null) {
+			status("No composition to save.");
+			return;
+		}
+		if (name == null || name.isEmpty())
+			name = "My Composition";
+
+		Map<BlockPos, BlockState> blockMapCopy = new HashMap<>(m.getMaterializedSketch().getBlockMap());
+		var bounds = m.getLocalBounds().clone();
+		var planNbt = m.getGroundPlan().writeToNbt(new CompoundTag());
+
+		SavedComposition saved = new SavedComposition(UUID.randomUUID(), name,
+				m.getAnchor(), bounds, planNbt, blockMapCopy);
+		CompositionLibrary.add(saved);
+		status("Saved composition '" + name + "'.");
+	}
+
+	public static void loadComposition(UUID id) {
+		CompositionLibrary.Entry entry = CompositionLibrary.findById(id);
+		if (entry == null) {
+			status("Composition not found.");
+			return;
+		}
+		SavedComposition c = entry.composition;
+		GroundPlan plan = c.loadGroundPlan();
+		if (plan == null) {
+			status("Theme for this composition is not loaded.");
+			return;
+		}
+
+		resetSchematic();
+		Schematic loaded = Schematic.fromMaterialized(c.anchor, c.bounds.clone(),
+				new HashMap<>(c.blocks));
+		loaded.setGroundPlan(plan);
+		loaded.setAnchor(c.anchor);
+		model = loaded;
+
+		MightyClient.renderer.display(loaded);
+		MightyClient.renderer.update();
+		enterPhase(ArchitectPhases.Previewing);
+		menu.setVisible(true);
+		status("Loaded composition '" + c.name + "'.");
 	}
 
 }

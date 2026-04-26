@@ -225,4 +225,12 @@ public class Schematic {
 		return groundPlan == null;
 	}
 
+	public static Schematic fromMaterialized(BlockPos anchor, Cuboid bounds, Map<BlockPos, BlockState> blocks) {
+		Schematic s = new Schematic();
+		s.anchor = anchor;
+		s.bounds = bounds;
+		s.materializedSketch = new TemplateBlockAccess(blocks, bounds, anchor);
+		return s;
+	}
+
 }
